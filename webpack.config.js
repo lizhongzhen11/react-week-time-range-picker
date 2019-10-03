@@ -5,7 +5,9 @@ module.exports = {
   entry: "./src/index.tsx",
   output: {
     filename: "react-week-time-range-picker.js",
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
@@ -18,7 +20,7 @@ module.exports = {
       { 
         test: /\.tsx?$/, 
         exclude: /node_modules/,
-        loader: "ts-loader" 
+        use: ["babel-loader", "ts-loader"]
       },
       // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
       { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
