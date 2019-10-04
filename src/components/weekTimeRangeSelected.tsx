@@ -61,7 +61,7 @@ const handleMergeHalfHour = (times, mergeTimes) => {
       mergeTimes.push([item])
     }
   })
-  mergeTimes.forEach((item, index) => {
+  mergeTimes.forEach(item => {
     const hour = +item.slice(-1)[0].substring(0, 2)
     if (item.slice(-1)[0].substring(3) === '30') {
       hour > 8 ? item.push(`${hour + 1}:00`) : item.push(`0${hour + 1}:00`)

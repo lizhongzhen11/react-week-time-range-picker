@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "module": "commonjs",
+    "moduleResolution": "node",
+    "module": "esnext",
     "jsx": "react",
   },
   "include": [

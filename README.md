@@ -1,5 +1,12 @@
 # react-week-time-range-picker
 
+## bug
+直接npm install然后import无法用。猜测是我这个库依赖react而且还使用了 **react-hooks**， hooks要求必须用同一个react才行，暂时还不知道怎么解决，如果想用的话只能直接
+```js
+// webpack也需要配置
+import ReactWeekTimeRangePicker from 'react-week-time-range-picker/src/index'
+```
+
 ## 用法 | usage
 ```js
 npm install react-week-time-range-picker --save-dev

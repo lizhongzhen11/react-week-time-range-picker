@@ -2,12 +2,12 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  entry: "./src/index.tsx",
+  // entry: "./src/test.tsx", // 本地测试
+  entry: "./src/index.tsx", // 打包
   output: {
     filename: "react-week-time-range-picker.js",
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname),
     libraryTarget: 'umd',
-    umdNamedDefine: true
   },
   // Enable sourcemaps for debugging webpack's output.
   devtool: "source-map",
@@ -18,12 +18,10 @@ module.exports = {
   module: {
     rules: [
       { 
-        test: /\.tsx?$/, 
+        test: /\.(js|jsx|tsx)?$/, 
         exclude: /node_modules/,
         use: ["babel-loader", "ts-loader"]
       },
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
       {
         test: /\.less$/,
         use: [
@@ -35,8 +33,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'index.html')
-    })
+    // new HtmlWebpackPlugin({
+    //   template: path.resolve(__dirname, 'index.html')
+    // })
   ]
 };

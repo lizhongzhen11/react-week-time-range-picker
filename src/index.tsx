@@ -26,45 +26,9 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
   const [left, setLeft] = useState(0)
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
-  // const [startX, setStartX] = useState(0) // 记录起始点点击时e.clientX
-  // const [startY, setStartY] = useState(0) // 记录起始点点击时e.clientY
-  // const [startLayerX, setStartLayerX] = useState(0) // 记录起始点对应td的左上角距table的x轴距离
-  // const [startLayerY, setStartLayerY] = useState(0) // 记录起始点对应td的左上角距table的y轴距离
-  // const [leftX, setLeftX] = useState(0) // 记录起始点点击时layerX - 该td左侧距table左侧的距离
-  // const [topY, setTopY] = useState(0) // 记录起始点点击时边界纵向偏差
-  // const [popperLeft, setPopperLeft] = useState(0) // 记录提示框table左侧偏移值
-  // const [popperTop, setPopperTop] = useState(0) // 记录提示框相较于table底部偏移值
-  // const [currentVal, setCurrentVal] = useState('') // 缓存当前td对应的星期和小时拼接后的字符串
-  // const [nextTime, setNextTime] = useState('') // 缓存当前时间的下一时间，例如当前在 00:00位置，其下一时刻应该是00:30或者01:00(根据hasHalfHour确定)
-  const [cacheChecked, setCacheChecked] = useState<SelectedDataProps[]>([]) // 缓存被选中的时间数据
-
-  const { hasHalfHour, selectedData, selectTimeRange } = props
-  let tableRef = React.createRef()
+  const [cacheChecked, setCacheChecked] = useState<SelectedDataProps[]>(props.selectedData || []) // 缓存被选中的时间数据
 
   useEffect(() => {
-    setCacheChecked(selectedData || [])
-  }, [selectedData])
-
-  // 获取被选中的数据，并抛给父组件
-  const handleSelect = (selected: SelectedDataProps[]) => {
-    setCacheChecked(selected)
-    selectTimeRange && selectTimeRange(selected)
-  }
-
-  useEffect(() => {
-    // 拖拽超过table范围后才释放
-    const handleMouseup = (e) => {
-      if (e && !e.target.dataset.hour) {
-        setIsDrag(false)
-      }
-    }
-    // 拖拽超过table范围
-    const handleMousemove = (e) => {
-      if (!e.target.dataset.hour) {
-        isMoveout = true
-        // setIsMoveout(true)
-      }
-    }
     document.body.addEventListener('mouseup', handleMouseup)
     document.body.addEventListener('mousemove', handleMousemove)
     return () => {
@@ -72,10 +36,31 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
       document.body.removeEventListener('mousemove', handleMousemove)
     }
   })
-  
+
+  const { hasHalfHour, selectTimeRange } = props
+
+
+  // 获取被选中的数据，并抛给父组件
+  const handleSelect = (selected: SelectedDataProps[]) => {
+    setCacheChecked(selected)
+    selectTimeRange && selectTimeRange(selected)
+  }
+
+  // 拖拽超过table范围后才释放
+  const handleMouseup = (e) => {
+    if (e && !e.target.dataset.hour) {
+      setIsDrag(false)
+    }
+  }
+  // 拖拽超过table范围
+  const handleMousemove = (e) => {
+    if (!e.target.dataset.hour) {
+      isMoveout = true
+    }
+  }
+
   const handleMoveout = (isOut: boolean) => {
     isMoveout = isOut
-    // setIsMoveout(isOut)
   }
 
   // 计算拖拽框区域的核心代码
@@ -83,7 +68,6 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
     const { type, clientX, clientY, layerX, layerY, iden, hour, value, isDrag } = props
     if (type === 'up') {
       setIsDrag(false)
-      // setIsFocus(false)
       isFocus = false
       return
     }
@@ -109,18 +93,8 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
     startLayerX = tdIndex * 16 + 60
     startLayerY = (~~iden * 20) + 40
     isFocus = false
-    console.log(layerY, iden)
     setTop(startY - topY)
     setLeft(startX - leftX)
-    // setStartX(clientX)
-    // setStartY(clientY)
-    // setLeftX(layerX - tdIndex * 16 - 60)
-    // setTopY(layerY - (~~iden * 20) - 40)
-    // setStartLayerX(tdIndex * 16 + 60)
-    // setStartLayerY((~~iden * 20) + 40)
-    // setLeft(startX - leftX)
-    // setTop(startY - topY)
-    // setIsFocus(false)
   }
   // 可能是普通移动，也可能是拖拽移动
   const handleDragMove = ({ isDrag, layerX, layerY, tempWidth, tempHeight, iden, hour, value }) => {
@@ -138,7 +112,7 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
     }
     isFocus = true
     // setIsFocus(true)
-    tipPosition(iden, hour, value)
+    // tipPosition(iden, hour, value)
   }
 
   /**
@@ -153,26 +127,26 @@ const ReactWeekTimeRangePicker: React.FunctionComponent<ReactWeekTimeRangePicker
    *       bug修复：
    *          1.当选中超过7个间隔的时间段后，该星期会占两行，高度由21增加为42，所以需要遍历所选时间数据，确定一共占几行
    */
-   const tipPosition = (iden, time, value) => {
-     const hour = ~~time.substring(0, 2)
-     const minute = ~~time.substring(3)
-     currentVal = value
-    //  const tableHeight = this.$refs.table.clientHeight
-    //  popperTop = (~~iden + 1) * 20 + 40 - tableHeight - 55
-     // 只有小时
-     if (!hasHalfHour) {
-       nextTime = hour + 1 >= 10 ? `${hour + 1}:00` : `0${hour + 1}:00`
-       popperLeft = (hour - 1) * 16 + 13
-       return
-     }
-     if (minute === 30) {
-       nextTime = hour + 1 >= 10 ? `${hour + 1}:00` : `0${hour + 1}:00`
-       popperLeft = (hour * 2) * 16 + 13
-       return
-     }
-     nextTime = time.substring(0, 2) + ':30'
-     popperLeft = (hour * 2 - 1) * 16 + 13
-   }
+  //  const tipPosition = (iden, time, value) => {
+  //    const hour = ~~time.substring(0, 2)
+  //    const minute = ~~time.substring(3)
+  //    currentVal = value
+  //   //  const tableHeight = this.$refs.table.clientHeight
+  //   //  popperTop = (~~iden + 1) * 20 + 40 - tableHeight - 55
+  //    // 只有小时
+  //    if (!hasHalfHour) {
+  //      nextTime = hour + 1 >= 10 ? `${hour + 1}:00` : `0${hour + 1}:00`
+  //      popperLeft = (hour - 1) * 16 + 13
+  //      return
+  //    }
+  //    if (minute === 30) {
+  //      nextTime = hour + 1 >= 10 ? `${hour + 1}:00` : `0${hour + 1}:00`
+  //      popperLeft = (hour * 2) * 16 + 13
+  //      return
+  //    }
+  //    nextTime = time.substring(0, 2) + ':30'
+  //    popperLeft = (hour * 2 - 1) * 16 + 13
+  //  }
 
   return (
     <div className="week-time-range-picker" style={

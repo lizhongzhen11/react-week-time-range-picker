@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { TbodyProps, SelectedDataProps } from '../interface'
 import { theadWithHalfHours, theadWithHours } from '../config/thead.js'
 import { weeks } from '../config/tbody.js'
-import { sort, sortHour, handleRange, handleDayRange, handleCheckedData } from '../util'
+import { sort, sortHour, handleRange, handleDayRange, handleCheckedData } from '../util/index'
 import "../less/time-range-picker-tbody.less"
 import WeekTimeRangeSelected from './weekTimeRangeSelected'
 
@@ -24,14 +24,15 @@ let cach = {
 
 const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: TbodyProps) => {
   const [checkedDatas, setCheckedDatas] = useState<SelectedDataProps[]>(props.checkedDatas)
-  const { hasHalfHour, handleDrag, handleSelect, handleMoveout } = props
-  const hours = hasHalfHour ? theadWithHalfHours : theadWithHours
-  const colspan = hasHalfHour ? 1 : 2
 
   useEffect(() => {
     document.body.addEventListener('mouseup', handleBodyMouseup)
     return () => document.body.removeEventListener('mouseup', handleBodyMouseup)
   })
+
+  const { hasHalfHour, handleDrag, handleSelect, handleMoveout } = props
+  const hours = hasHalfHour ? theadWithHalfHours : theadWithHours
+  const colspan = hasHalfHour ? 1 : 2
 
   const handleBodyMouseup = (e) => {
     if (e && !e.target.dataset.hour) {
@@ -48,7 +49,7 @@ const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: Tb
     e.preventDefault()
     e.stopPropagation()
     isDrag = true
-    if (setVal(e, 'cacheStart')) {
+    if (handleSetVal(e, 'cacheStart')) {
       const dragData = {
         type: 'down',
         clientX: e.clientX,
@@ -69,7 +70,7 @@ const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: Tb
     e.preventDefault()
     e.stopPropagation()
     isDrag = false
-    setVal(e, 'cacheEnd')
+    handleSetVal(e, 'cacheEnd')
     clearCache('cacheStart')
     clearCache('cacheEnd')
     handleDrag({type: 'up'})
@@ -121,7 +122,7 @@ const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: Tb
   /**
    * @desc 触发事件时，抽出相同赋值代码
    */
-  const setVal = (e, key) => {
+  const handleSetVal = (e, key) => {
     if (e.target.dataset.hour) {
       let iden = e.target.dataset.iden,
           hour = e.target.dataset.hour
@@ -181,14 +182,15 @@ const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: Tb
   const confirmRange = () => {
     let daysArr = [cach.cacheStart.iden, cach.cacheEnd.iden],
         hoursArr = [cach.cacheStart.hour, cach.cacheEnd.hour],
-        cacheChecked = checkedDatas,
-        tempHasStart = hasStart;
+        tempHasStart = hasStart,
+        cacheChecked = JSON.parse(JSON.stringify(checkedDatas));
     const dayRange = handleDayRange(daysArr.sort(sort))
     const timeRange = handleRange(hasHalfHour, hoursArr.sort(sortHour)) // 框选的时间范围
     for (let i = 0; i < dayRange.length; i++) {
       let {has, idenIndex} = isHasStart(dayRange[i])
       handleCheckedData({ cacheChecked, hasStart: tempHasStart, has, idenIndex, iden: dayRange[i], timeRange})
     }
+    setCheckedDatas(cacheChecked)
   }
 
   return (
@@ -208,7 +210,7 @@ const WeekTimeRangePickerTbody: React.FunctionComponent<TbodyProps> = (props: Tb
                     <td colSpan={colspan} 
                       className={
                         checkedDatas.some(checked => {
-                          return checked.iden === item.iden && checked.times.includes(hour.time)
+                          return checked.iden === item.iden && checked.times.indexOf(hour.time) !== -1
                         }) ? 'wtrp-active-td' : 'wtrp-freeze-td'
                       }
                       key={index} 
