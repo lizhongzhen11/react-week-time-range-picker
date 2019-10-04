@@ -1,6 +1,6 @@
 {
   "name": "react-week-time-range-picker",
-  "version": "1.11.2",
+  "version": "1.11.4",
   "description": "",
   "main": "react-week-time-range-picker.js",
   "types": "./src/react-app.d.ts",
@@ -41,5 +41,9 @@
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.1"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "peerDeependencies": {
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2"
+  }
 }
